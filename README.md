@@ -3,6 +3,7 @@ A small C++ project organized with CMake so it can be built on Visual Studio (Wi
 本專案使用 CMake 管理，支援 Visual Studio（Windows） 與 g++/Clang（Linux/macOS） 交叉平台編譯。
 
 ## Directory Layout | 專案結構
+```
 ├─ CMakeLists.txt
 ├─ header/
 │  ├─ InitialPlacement.h
@@ -14,6 +15,7 @@ A small C++ project organized with CMake so it can be built on Visual Studio (Wi
 │  ├─ SAManager.cpp
 │  └─ TableManager.cpp
 └─ build/          # out-of-source build directory（建議用來放所有編譯產物，此資料夾中的內容會被ignore忽略，不會汙染倉庫）
+```
 
 ## Prerequisites | 先決條件
 安裝Visual Studio 2022，「使用 C++ 的桌面開發」工作負載，勾選 C++ CMake tools（Open Folder 模式需要）
@@ -21,9 +23,10 @@ A small C++ project organized with CMake so it can be built on Visual Studio (Wi
 
 ## Build & Run on Windows (Visual Studio) | 在 Windows / VS 編譯與執行
 用 CMake 產生 .sln，使用CMAKE，並輸入：
-
+```
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Debug
+```
 
 接著用 VS 打開：build/AnalogTransistorPlacementOptimizer.sln
 在 Solution Explorer 對 atpo 右鍵 → 設為啟動專案 → ctrl+F5執行。
