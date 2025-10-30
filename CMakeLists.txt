@@ -9,9 +9,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.cpp
 )
+file(GLOB_RECURSE HEADER_FILES  CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/header/*.h)
 
-add_executable(atpo ${SOURCES})
-
+add_executable(atpo ${SOURCES} ${HEADER_FILES})
+    
 target_include_directories(atpo PRIVATE ${CMAKE_SOURCE_DIR}/header)
 
 if (MSVC)

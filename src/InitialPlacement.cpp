@@ -1,8 +1,8 @@
 #include "InitialPlacement.h"
 
-InitialPlacement::InitialPlacement(/* args */)
+InItialPlacenent::InItialPlacenent(/* args */)
 {
 }
-InitialPlacement::~InitialPlacement()
+InItialPlacenent::~InItialPlacenent()
 {
 }

@@ -37,4 +37,5 @@
 .DS_Store
 Thumbs.db
 
-.vs/
+..vs/
+*.sln
