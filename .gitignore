@@ -39,3 +39,5 @@ Thumbs.db
 
 ..vs/
 *.sln
+test.cpp
+test.h

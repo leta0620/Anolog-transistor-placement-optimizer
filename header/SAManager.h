@@ -1,4 +1,5 @@
 #pragma once
+#include "TableManager.h"
 
 class SAManager
 {

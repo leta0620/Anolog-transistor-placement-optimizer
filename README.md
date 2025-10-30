@@ -31,3 +31,5 @@ cmake --build build --config Debug
 接著用 VS 打開：build/AnalogTransistorPlacementOptimizer.sln
 在 Solution Explorer 對 atpo 右鍵 → 設為啟動專案 → ctrl+F5執行。
 
+## Testinng
+你可以在src和header資料夾中，自行創建test.cpp和test.h，這兩個檔案不會被上傳至倉庫中，所以你可以在其中安心地寫你的測試程式碼。
