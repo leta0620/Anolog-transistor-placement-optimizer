@@ -11,8 +11,10 @@ private:
     int nfin = 0;
 	int aspect = 0;
     vector<int> deviceNumList;
+
+    TableManager* tableManager = nullptr;
 public:
-    InItialPlacenent(int group, int nfin, int aspect, vector<int> deviceNumList);
+    InItialPlacenent(int group, int nfin, int aspect, vector<int>& deviceNumList);
     ~InItialPlacenent();
 
 
