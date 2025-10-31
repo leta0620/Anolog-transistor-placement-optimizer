@@ -8,7 +8,7 @@ using namespace std;
 class DeviceUnit
 {
 public:
-
+	DeviceUnit() = default;
 	DeviceUnit(string deviceName, int deviceNum, int nfin, int group);
 
 	// get device output string, e.g. ddAAAAdd
