@@ -1,8 +1,19 @@
 #include "InitialPlacement.h"
 
-InItialPlacenent::InItialPlacenent(/* args */)
+using namespace std;
+
+InItialPlacenent::InItialPlacenent(string circuitType, int group, int nfin, int aspect, std::vector<int>& deviceNumList)
 {
+	this->group = group;
+	this->nfin = nfin;
+	this->aspect = aspect;
+	this->deviceNumList = deviceNumList;
+
+	// Generate initial placement tables
+	this->GenerateInitialPlacementTables();
 }
-InItialPlacenent::~InItialPlacenent()
+
+void InItialPlacenent::GenerateInitialPlacementTables()
 {
+
 }
