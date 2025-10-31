@@ -6,6 +6,7 @@
 #include "DeviceUnit.h"
 #include "InitialPlacement.h"
 #include "SAManager.h"
+#include "CostTableManager.h"
 
 
 class Test
