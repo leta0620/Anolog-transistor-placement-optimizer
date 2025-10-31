@@ -58,3 +58,18 @@ int TableManager::SetDeviceUnit(int row, int col, DeviceUnit& deviceUnit)
 	return 0;
 }
 
+vector<string> TableManager::GetTableOutput()
+{
+	vector<string> ret;
+	for (const auto& row : deviceUnitTable)
+	{
+		string rowStr;
+		for (auto deviceUnit : row)
+		{
+			rowStr += deviceUnit.GetDeviceOutput();
+		}
+		ret.push_back(rowStr);
+	}
+	return ret;
+}
+

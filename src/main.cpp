@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <string>
 
+#include "CostTableManager.h"
 #include "TableManager.h"
 #include "InitialPlacement.h"
+#include "SAManager.h"
 #include "test.h"
 
 
@@ -19,25 +21,57 @@ int main(int argc, char* argv[]) {
 	}
 	else
 	{
-		// input parameters: group , nfin, aspect, deviceNumList
-		if (argc < 5)
+		// input parameters: circuit type, group , nfin, aspect, deviceNumList
+		if (argc < 6)
 		{
 			cout << "Error: input parameter too few" << endl;
 		}
 
 
-
-		int group = stoi(argv[1]);
-		int nfin = stoi(argv[2]);
-		int aspect = stoi(argv[3]);
+		string circuitType = argv[1];
+		int group = stoi(argv[2]);
+		int nfin = stoi(argv[3]);
+		int aspect = stoi(argv[4]);
 		vector<int> deviceNumList;
-		for (int i = 4; i < argc; i++)
+		for (int i = 5; i < argc; i++)
 		{
 			deviceNumList.push_back(stoi(argv[i]));
 		}
-		InItialPlacenent initialPlacement(group, nfin, aspect, deviceNumList);
+		InItialPlacenent initialPlacement(circuitType, group, nfin, aspect, deviceNumList);
 		vector<TableManager> resultTables = initialPlacement.GetResultTable();
 
+		vector<vector<CostTableManager>> allNondominatedSolutions;
+		for (TableManager& r : resultTables)
+		{
+			// SA
+			SAManager sa(r, 0.95, 1000, 1, 100);
+			allNondominatedSolutions.push_back(sa.GetNondominatedSolution());
+		}
+
+		// Output all nondominated solutions
+		for (size_t i = 0; i < allNondominatedSolutions.size(); i++)
+		{
+			cout << "Nondominated Solutions for Initial Table " << i + 1 << ":\n";
+			const auto& solutions = allNondominatedSolutions[i];
+			for (size_t j = 0; j < solutions.size(); j++)
+			{
+				cout << " Solution " << j + 1 << ":\n";
+				auto table = solutions[j];
+				auto cost = table.CalculateCost();
+				cout << "  Costs - CC: " << cost[0] << ", RC: " << cost[1] << ", Separation: " << cost[2] << "\n";
+				cout << "  Table Layout:\n";
+				auto deviceTable = table.GetTable();
+				for (const auto& row : deviceTable)
+				{
+					for (auto device : row)
+					{
+						cout << device.GetDeviceOutput() << " ";
+					}
+					cout << "\n";
+				}
+			}
+			cout << "\n";
+		}
 	}
 
 	return 0;

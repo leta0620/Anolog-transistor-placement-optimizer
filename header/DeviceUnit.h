@@ -3,32 +3,30 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 class DeviceUnit
 {
 public:
 	DeviceUnit() = default;
-	DeviceUnit(string deviceName, int deviceNum, int nfin, int group);
+	DeviceUnit(std::string deviceName, int deviceNum, int nfin, int group);
 
 	// get device output string, e.g. ddAAAAdd
-	string GetDeviceOutput();
+	std::string GetDeviceOutput();
 
 	// get device output vector<string>
-	vector<string> GetDeviceOutputVector();
+	std::vector<std::string> GetDeviceOutputVector();
 
-	string GetDeviceName() { return deviceName; }
+	std::string GetDeviceName() { return deviceName; }
 	int GetDeviceNum() { return deviceNum; }
 	int GetNfin() { return nfin; }
 	int GetGroup() { return group; }
 
-	void SetDeviceName(string name) { deviceName = name; }
+	void SetDeviceName(std::string name) { deviceName = name; }
 	void SetDeviceNum(int num) { deviceNum = num; }
 	void SetNfin(int nfin) { this->nfin = nfin; }
 	void SetGroup(int group) { this->group = group; }
 
 private:
-	string deviceName;
+	std::string deviceName;
 	int deviceNum = 0;
 	int nfin = 0;
 	int group = 0;

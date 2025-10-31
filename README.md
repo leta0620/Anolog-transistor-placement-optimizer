@@ -1,6 +1,6 @@
 # Anolog-transistor-placement-optimizer
 A small C++ project organized with CMake so it can be built on Visual Studio (Windows) and g++/Clang (Linux/macOS).
-本專案使用 CMake 管理，支援 Visual Studio（Windows） 與 g++/Clang（Linux/macOS） 交叉平台編譯。
+使用 CMake 管理，支援 Visual Studio（Windows） 與 g++/Clang（Linux/macOS）編譯。
 
 ## Directory Layout | 專案結構
 ```
@@ -18,7 +18,7 @@ A small C++ project organized with CMake so it can be built on Visual Studio (Wi
 ```
 
 ## Prerequisites | 先決條件
-安裝Visual Studio 2022，「使用 C++ 的桌面開發」工作負載，勾選 C++ CMake tools（Open Folder 模式需要）
+安裝Visual Studio 2022，「使用 C++ 的桌面開發」工作負載，勾選 C++ CMake tools（Open Folder 模式需要。
 安裝CMAKE(CMake ≥ 3.20)
 
 ## Build & Run on Windows (Visual Studio) | 在 Windows / VS 編譯與執行

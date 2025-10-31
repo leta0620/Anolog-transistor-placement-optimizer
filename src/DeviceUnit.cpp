@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-
+using namespace std;
 
 DeviceUnit::DeviceUnit(string deviceName, int deviceNum, int nfin, int group)
 {

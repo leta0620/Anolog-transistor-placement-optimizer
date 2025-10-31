@@ -2,23 +2,22 @@
 #include <vector>
 #include "TableManager.h"
 
-using namespace std;
-
 class InItialPlacenent
 {
 private:
+    std::string circuitType;
     int group = 0;
     int nfin = 0;
 	int aspect = 0;
-    vector<int> deviceNumList;
+    std::vector<int> deviceNumList;
 
-    vector<TableManager> tableManager;
+    std::vector<TableManager> tableManager;
 	void GenerateInitialPlacementTables();
 
 public:
-    InItialPlacenent(int group, int nfin, int aspect, vector<int>& deviceNumList);
+    InItialPlacenent(std::string circuitType, int group, int nfin, int aspect, std::vector<int>& deviceNumList);
 
-	vector<TableManager> GetResultTable() { return tableManager; }
+    std::vector<TableManager> GetResultTable() { return tableManager; }
 };
 
 

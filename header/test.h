@@ -7,7 +7,6 @@
 #include "InitialPlacement.h"
 #include "SAManager.h"
 
-using namespace std;
 
 class Test
 {
@@ -16,5 +15,7 @@ public:
 
 private:
 	// Add your test functions here, and call them in the constructor
-	void TestDeviceUnit(string deviceName, int deviceNum, int nfin, int group);
+	void TestDeviceUnit(std::string deviceName, int deviceNum, int nfin, int group);
+
+	void TestTableManager(int rowSize, int colSize);
 };

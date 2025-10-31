@@ -5,19 +5,29 @@
 #include "DeviceUnit.h"
 
 
-using namespace std;
-
 class TableManager
 {
-private:
-	vector<vector<DeviceUnit>> deviceUnitTable;
+protected:
+	std::vector<std::vector<DeviceUnit>> deviceUnitTable;
 
 public:
 	TableManager() = default;
-    TableManager(int rowSize, int colSize);
+	explicit TableManager(int rowSize, int colSize);
+
+	// set entire table
+	void SetTable(const std::vector<std::vector<DeviceUnit>>& table) { deviceUnitTable = table; }
+
+	// get entire table
+	std::vector<std::vector<DeviceUnit>> GetTable() { return deviceUnitTable; }
 
 	// resize table to newRowSize x newColSize
 	int ResizeTable(int newRowSize, int newColSize);
+
+	// get table row size
+	int GetRowSize() { return deviceUnitTable.size(); }
+
+	// get table col size
+	int GetColSize() { return deviceUnitTable.empty() ? 0 : deviceUnitTable[0].size(); }
 
 	// get device unit at (row, col)
 	DeviceUnit GetDeviceUnit(int row, int col);
@@ -30,6 +40,9 @@ public:
 
 	// set device unit at (row, col)
 	int SetDeviceUnit(int row, int col, DeviceUnit& deviceUnit);
+
+	// get table output as vector of strings
+	std::vector<std::string> GetTableOutput();
 };
 
 

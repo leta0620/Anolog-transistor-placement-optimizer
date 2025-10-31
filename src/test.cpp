@@ -8,7 +8,8 @@ Test::Test()
 {
 	cout << "Start test." << endl;
 
-	this->TestDeviceUnit("A", 4, 6, 16);
+	//this->TestDeviceUnit("A", 4, 6, 16);
+	this->TestTableManager(4, 5);
 }
 
 void Test::TestDeviceUnit(string deviceName, int deviceNum, int nfin, int group)
@@ -50,4 +51,11 @@ void Test::TestDeviceUnit(string deviceName, int deviceNum, int nfin, int group)
 	}
 
 	cout << "Test completed." << endl;
+}
+
+void Test::TestTableManager(int rowSize, int colSize)
+{
+	cout << "Testing TableManager with size: " << rowSize << " x " << colSize << endl;
+	TableManager tm(rowSize, colSize);
+	// Further tests can be added here for TableManager functionalities
 }

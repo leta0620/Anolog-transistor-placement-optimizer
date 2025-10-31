@@ -1,6 +1,8 @@
 #include "InitialPlacement.h"
 
-InItialPlacenent::InItialPlacenent(int group, int nfin, int aspect, vector<int>& deviceNumList)
+using namespace std;
+
+InItialPlacenent::InItialPlacenent(string circuitType, int group, int nfin, int aspect, std::vector<int>& deviceNumList)
 {
 	this->group = group;
 	this->nfin = nfin;
