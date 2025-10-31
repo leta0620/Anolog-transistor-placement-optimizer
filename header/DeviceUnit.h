@@ -22,6 +22,11 @@ public:
 	int GetNfin() { return nfin; }
 	int GetGroup() { return group; }
 
+	void SetDeviceName(string name) { deviceName = name; }
+	void SetDeviceNum(int num) { deviceNum = num; }
+	void SetNfin(int nfin) { this->nfin = nfin; }
+	void SetGroup(int group) { this->group = group; }
+
 private:
 	string deviceName;
 	int deviceNum = 0;

@@ -12,12 +12,13 @@ private:
 	int aspect = 0;
     vector<int> deviceNumList;
 
-    TableManager* tableManager = nullptr;
+    vector<TableManager> tableManager;
+	void GenerateInitialPlacementTables();
+
 public:
     InItialPlacenent(int group, int nfin, int aspect, vector<int>& deviceNumList);
-    ~InItialPlacenent();
 
-
+	vector<TableManager> GetResultTable() { return tableManager; }
 };
 
 

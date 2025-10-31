@@ -13,6 +13,7 @@ private:
 	vector<vector<DeviceUnit>> deviceUnitTable;
 
 public:
+	TableManager() = default;
     TableManager(int rowSize, int colSize);
 
 	// resize table to newRowSize x newColSize

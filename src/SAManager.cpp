@@ -3,6 +3,3 @@
 SAManager::SAManager(/* args */)
 {
 }
-SAManager::~SAManager()
-{
-}

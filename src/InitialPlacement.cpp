@@ -6,7 +6,12 @@ InItialPlacenent::InItialPlacenent(int group, int nfin, int aspect, vector<int>&
 	this->nfin = nfin;
 	this->aspect = aspect;
 	this->deviceNumList = deviceNumList;
+
+	// Generate initial placement tables
+	this->GenerateInitialPlacementTables();
 }
-InItialPlacenent::~InItialPlacenent()
+
+void InItialPlacenent::GenerateInitialPlacementTables()
 {
+
 }

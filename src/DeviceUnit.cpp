@@ -17,7 +17,7 @@ DeviceUnit::DeviceUnit(string deviceName, int deviceNum, int nfin, int group)
 string DeviceUnit::GetDeviceOutput()
 {
 	string ret;
-	int d = this->group = this->deviceNum;
+	int d = this->group - this->deviceNum;
 	int dCounter = 0;
 	for (int i = 0; i < (d / 2); i++)
 	{
@@ -42,7 +42,7 @@ vector<string> DeviceUnit::GetDeviceOutputVector()
 {
 	vector<string> ret;
 	// To Do
-	int d = this->group = this->deviceNum;
+	int d = this->group - this->deviceNum;
 	int dCounter = 0;
 	for (int i = 0; i < (d / 2); i++)
 	{
