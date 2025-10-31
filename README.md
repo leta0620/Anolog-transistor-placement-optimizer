@@ -12,15 +12,14 @@ A small C++ project organized with CMake so it can be built on Visual Studio (Wi
 │  ├─ TableManager.h
 |  ├─ DeviceUnit.h
 |  └─ test.h
-├─ src/
-│  ├─ main.cpp
-│  ├─ InitialPlacement.cpp
-│  ├─ SAManager.cpp
-|  ├─ CostTableManager.cpp
-│  ├─ TableManager.cpp
-|  ├─ DeviceUnit.cpp
-|  └─ test.cpp
-└─ build/          # out-of-source build directory（建議用來放所有編譯產物，此資料夾中的內容會被ignore忽略，不會汙染倉庫）
+└─ src/
+   ├─ main.cpp
+   ├─ InitialPlacement.cpp
+   ├─ SAManager.cpp
+   ├─ CostTableManager.cpp
+   ├─ TableManager.cpp
+   ├─ DeviceUnit.cpp
+   └─ test.cpp
 ```
 
 ## Prerequisites | 先決條件
@@ -30,7 +29,7 @@ A small C++ project organized with CMake so it can be built on Visual Studio (Wi
 ```
 
 ## Build & Run on Windows (Visual Studio) | 在 Windows / VS 編譯與執行
-用 CMake 產生 .sln，使用CMAKE，並輸入：
+先在資料夾中新增build資料夾，並用 CMake 產生 .sln，使用CMAKE，並輸入：
 ```
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Debug
