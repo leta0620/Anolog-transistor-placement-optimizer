@@ -52,4 +52,4 @@ e.g. class SAManager{};
 ```
 
 若要新增variable/function，請新增在類別中的private or protected中，保持class的封裝，需新增public variable/function請先和其他人確認此部分是否會影響並討論其合理性。
-*合併主幹請使用github網頁提交merge request，或發生衝突無法提交合併申請，請先將自己的main pull下來到最新版，並且將目前main分支的內容合併到自己的分支中，解決完衝突後，重新將自己的分支推上去，再從網頁提交合併。
+*合併主幹請使用github網頁提交merge request，或發生衝突無法提交合併申請，請先將自己的main pull下來到最新版，並且將目前main分支的內容合併到自己的分支中，解決完衝突後，重新將自己的分支推上去，再從網頁提交合。併。
