@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 		string circuitType = argv[1];
 		int group = stoi(argv[2]);
 		int nfin = stoi(argv[3]);
-		int aspect = stoi(argv[4]);
+		double aspect = stoi(argv[4]);
 		vector<int> deviceNumList;
 		for (int i = 5; i < argc; i++)
 		{
