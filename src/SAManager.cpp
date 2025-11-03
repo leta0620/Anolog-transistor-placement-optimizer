@@ -35,13 +35,15 @@ SAManager::SAManager(TableManager& initialTable, double coolRate, double initial
 void SAManager::SAProcess()
 {
 	// generate new solution
-	random_device rd;
+	std::random_device rd;
+	std::mt19937 gen(rd());
 
 	int nowIteration = 0;
 	while (this->currentTemp > this->finalTemp)
 	{
 		newTableList.clear();
-		this->Perturbation();
+
+		this->Perturbation(gen);
 
 		// calculate cost for new solution
 		for (auto& r : this->newTableList)
@@ -68,12 +70,11 @@ void SAManager::SAProcess()
 	}
 }
 
-void SAManager::Perturbation(random_device rd)
+void SAManager::Perturbation(std::mt19937& gen)
 {
-	auto SwapTwoDeviceUnit = [](CostTableManager& table, random_device& rd) {
+	auto SwapTwoDeviceUnit = [](CostTableManager& table, mt19937& gen) {
 		int rowSize = table.GetRowSize();
 		int colSize = table.GetColSize();
-		mt19937 gen(rd());
 		uniform_int_distribution<> disRow(0, rowSize - 1);
 		uniform_int_distribution<> disCol(0, colSize - 1);
 		int row1 = disRow(gen);
@@ -85,7 +86,7 @@ void SAManager::Perturbation(random_device rd)
 
 	// generate new solutions by swapping two device unit
 	CostTableManager newTable = this->nowUseTable;
-	SwapTwoDeviceUnit(newTable, rd);
+	SwapTwoDeviceUnit(newTable, gen);
 	this->newTableList.push_back(newTable);
 }
 
@@ -93,7 +94,7 @@ void SAManager::Perturbation(random_device rd)
 
 void SAManager::SeleteNewUseTable()
 {
-	// To Do: implement selection of new usage table
+	
 }
 
 void SAManager::UpdateNondominatedSolution()

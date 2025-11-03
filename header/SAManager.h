@@ -1,6 +1,7 @@
 #pragma once
 #include "CostTableManager.h"
 #include "TableManager.h"
+#include <random>
 
 class SAManager
 {
@@ -22,7 +23,7 @@ private:
 	void SAProcess();
 
 	// generate new solution by perturbation
-	void Perturbation();
+	void Perturbation(std::mt19937& gen);
 
 	// select new usage table from current result(compare cost with mowUseTable and decide to accept or not)
 	void SeleteNewUseTable();
