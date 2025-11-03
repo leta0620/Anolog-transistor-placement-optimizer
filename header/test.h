@@ -19,4 +19,6 @@ private:
 	void TestDeviceUnit(std::string deviceName, int deviceNum, int nfin, int group);
 
 	void TestTableManager(int rowSize, int colSize);
+
+	void TestInitialPlacement(std::string circuitType, int group, int nfin, double aspect, std::vector<int>& deviceNumList);
 };
