@@ -327,3 +327,23 @@ double CostTableManager::CalculateSeperationCost() {
     }
     return total_sigma;
 }
+
+
+bool CostTableManager::EqualTableToSelf(CostTableManager& otherTable)
+{
+    if (this->GetRowSize() != otherTable.GetRowSize() || this->GetColSize() != otherTable.GetColSize())
+    {
+        return false;
+    }
+    for (int r = 0; r < this->GetRowSize(); r++)
+    {
+        for (int c = 0; c < this->GetColSize(); c++)
+        {
+            if (this->GetDeviceUnit(r, c).GetDeviceName() != otherTable.GetDeviceUnit(r, c).GetDeviceName())
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}

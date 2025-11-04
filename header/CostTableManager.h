@@ -20,6 +20,8 @@ public:
 		return { CCCost, RCCost, SeperationCost };
 	}
 
+	bool EqualTableToSelf(CostTableManager& otherTable);
+
 private:
     double CCCost = 0.0;
     double RCCost = 0.0;          //reserved
