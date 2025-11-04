@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 			cout << "Now Table Num: " << &r - &resultTables[0] + 1 << "/" << resultTables.size() << endl;
 			SAManager sa(r, 0.95, 100, 1, 100, true);
 			allNondominatedSolutions.push_back(sa.GetNondominatedSolution());
-			cout << "Get " << sa.GetNondominatedSolution().size() << " Nondominated Solutions.\n\n";
+			cout << "\n\tGet " << sa.GetNondominatedSolution().size() << " Nondominated Solutions.\n\n";
 		}
 
 		// Output all nondominated solutions
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 				{
 					for (auto device : row)
 					{
-						cout << device.GetDeviceOutput() << " ";
+						cout << device.GetDeviceOutput();
 					}
 					cout << "\n";
 				}
