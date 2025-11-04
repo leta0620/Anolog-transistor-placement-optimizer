@@ -40,7 +40,7 @@ void Output::PrintAllResult()
 			cout << " Solution " << j + 1 << ":\n";
 			auto table = solutions[j];
 			auto cost = table.CalculateCost();
-			cout << "  Costs - CC: " << cost[0] << ", RC: " << cost[1] << ", Separation: " << cost[2] << "\n";
+			cout << "  Costs - CC: " << cost[0] << ", R: " << cost[1] << "C: " << cost[2] << ", Separation: " << cost[3] << "\n";
 			cout << "  Table Layout:\n";
 			auto deviceTable = table.GetTable();
 			for (const auto& row : deviceTable)
@@ -87,7 +87,7 @@ void Output::WriteAllResultToFile(string fileName)
 			f << " Solution " << j + 1 << ":\n";
 			auto table = solutions[j];
 			auto cost = table.CalculateCost();
-			f << "  Costs - CC: " << cost[0] << ", RC: " << cost[1] << ", Separation: " << cost[2] << "\n";
+			f << "  Costs - CC: " << cost[0] << ", R: " << cost[1] << ", C: " << cost[2] << ", Separation: " << cost[3] << "\n";
 			f << "  Table Layout:\n";
 			auto deviceTable = table.GetTable();
 			for (const auto& row : deviceTable)

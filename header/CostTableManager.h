@@ -17,7 +17,7 @@ public:
 	// get cost vector
 	std::vector<double> GetCostVector()
 	{
-		return { CCCost, RCCost, SeperationCost };
+		return { this->CCCost, this->RC_RCost, this->RC_CCost, this->SeperationCost };
 	}
 
 	bool EqualTableToSelf(CostTableManager& otherTable);
