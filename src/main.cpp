@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 		InItialPlacenent initialPlacement(circuitType, group, nfin, aspect, deviceNumList);
 		vector<TableManager> resultTables = initialPlacement.GetResultTable();
 
-		Output result;
+		Output result(circuitType, group, nfin, aspect, deviceNumList);
 		for (TableManager& r : resultTables)
 		{
 			// SA
@@ -53,31 +53,7 @@ int main(int argc, char* argv[]) {
 
 		// output
 		result.PrintAllResult();
-
-		// Output all nondominated solutions
-		/*for (size_t i = 0; i < allNondominatedSolutions.size(); i++)
-		{
-			cout << "Nondominated Solutions for Initial Table " << i + 1 << ":\n";
-			const auto& solutions = allNondominatedSolutions[i];
-			for (size_t j = 0; j < solutions.size(); j++)
-			{
-				cout << " Solution " << j + 1 << ":\n";
-				auto table = solutions[j];
-				auto cost = table.CalculateCost();
-				cout << "  Costs - CC: " << cost[0] << ", RC: " << cost[1] << ", Separation: " << cost[2] << "\n";
-				cout << "  Table Layout:\n";
-				auto deviceTable = table.GetTable();
-				for (const auto& row : deviceTable)
-				{
-					for (auto device : row)
-					{
-						cout << device.GetDeviceOutput();
-					}
-					cout << "\n";
-				}
-			}
-			cout << "\n";
-		}*/
+		result.WriteAllResultToFile("output_file.txt");
 	}
 
 	return 0;
