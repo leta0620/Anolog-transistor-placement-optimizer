@@ -74,7 +74,7 @@ void SAManager::SAProcess()
 		{
 			this->currentTemp *= this->coolRate;
 			nowIteration = 0;
-			if (this->openCommandLineOutput)	cout << "Current Temperature: " << this->currentTemp << endl;
+			if (this->openCommandLineOutput)	cout << "\r" << "Current Temperature: " << this->currentTemp;
 		}
 		else
 		{
