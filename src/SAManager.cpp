@@ -2,6 +2,8 @@
 #include "TableManager.h"
 #include <vector>
 #include <random>
+#include <set>
+#include <iostream>
 
 using namespace std;
 
@@ -181,6 +183,45 @@ void SAManager::SeleteNewUseTable(std::mt19937& gen)
 
 void SAManager::UpdateNondominatedSolution()
 {
-	
+	set<int> toBeRemovedIndex;
+	vector<int> newToBeAddIndex;
+	for (auto& newTable : this->newTableList)
+	{
+		bool newIsDominated = false;
+		vector<double> newCost = newTable.GetCostVector();
+		for (size_t i = 0; i < this->nondominatedSolution.size(); i++)
+		{
+			if (doesADominateB(newCost, this->nondominatedSolution[i].GetCostVector()))
+			{
+				toBeRemovedIndex.insert(i);
+			}
+
+			if (doesADominateB(this->nondominatedSolution[i].GetCostVector(), newCost))
+			{
+				newIsDominated = true;
+			}
+		}
+
+		if (!newIsDominated)
+		{
+			newToBeAddIndex.push_back(&newTable - &this->newTableList[0]);
+		}
+	}
+
+	// remove dominated solutions from nondominatedSolution
+	vector<CostTableManager> updatedNondominatedSolution;
+	for (size_t i = 0; i < this->nondominatedSolution.size(); i++)
+	{
+		if (toBeRemovedIndex.find(i) == toBeRemovedIndex.end()) // not to be removed
+		{
+			updatedNondominatedSolution.push_back(this->nondominatedSolution[i]);
+		}
+	}
+	// add new nondominated solutions
+	for (auto index : newToBeAddIndex)
+	{
+		updatedNondominatedSolution.push_back(this->newTableList[index]);
+	}
+	this->nondominatedSolution = updatedNondominatedSolution;
 }
 
