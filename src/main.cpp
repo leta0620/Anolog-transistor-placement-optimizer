@@ -8,6 +8,7 @@
 #include "InitialPlacement.h"
 #include "SAManager.h"
 #include "test.h"
+#include "output.h"
 
 
 using namespace std;
@@ -40,18 +41,21 @@ int main(int argc, char* argv[]) {
 		InItialPlacenent initialPlacement(circuitType, group, nfin, aspect, deviceNumList);
 		vector<TableManager> resultTables = initialPlacement.GetResultTable();
 
-		vector<vector<CostTableManager>> allNondominatedSolutions;
+		Output result;
 		for (TableManager& r : resultTables)
 		{
 			// SA
 			cout << "Now Table Num: " << &r - &resultTables[0] + 1 << "/" << resultTables.size() << endl;
 			SAManager sa(r, 0.95, 100, 1, 100, true);
-			allNondominatedSolutions.push_back(sa.GetNondominatedSolution());
+			result.AddResultList(&r - &resultTables[0] + 1, sa.GetNondominatedSolution());
 			cout << "\n\tGet " << sa.GetNondominatedSolution().size() << " Nondominated Solutions.\n\n";
 		}
 
+		// output
+		result.PrintAllResult();
+
 		// Output all nondominated solutions
-		for (size_t i = 0; i < allNondominatedSolutions.size(); i++)
+		/*for (size_t i = 0; i < allNondominatedSolutions.size(); i++)
 		{
 			cout << "Nondominated Solutions for Initial Table " << i + 1 << ":\n";
 			const auto& solutions = allNondominatedSolutions[i];
@@ -73,7 +77,7 @@ int main(int argc, char* argv[]) {
 				}
 			}
 			cout << "\n";
-		}
+		}*/
 	}
 
 	return 0;
