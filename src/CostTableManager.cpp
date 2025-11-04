@@ -17,13 +17,19 @@ namespace {
     }
 } // namespace
 
-// Calculate all three cost terms: CC, RC, and Separation
+// Calculate all four cost terms now: CC, R, C, and Separation
 std::vector<double> CostTableManager::CalculateCost()
 {
     this->CCCost = this->CalculateCCCost();
-    this->RCCost = this->CalculateRCCost();
+
+    //NEW
+    //why add void? because this is to avoid the compiler giving a waring of this function
+    (void)this->CalculateRCCost();
+
     this->SeperationCost = this->CalculateSeperationCost();
-    return { this->CCCost, this->RCCost, this->SeperationCost };
+
+    //only return R & C
+    return { this->CCCost, this->RC_RCost, this->RC_CCost, this->SeperationCost };
 }
 
 // -----------------------------------------------------------------------------
@@ -80,6 +86,11 @@ double CostTableManager::CalculateCCCost() {
     return sum / static_cast<double>(n);
 }
 
+
+
+
+
+
 // -----------------------------------------------------------------------------
 // 2. RC Cost
 // -----------------------------------------------------------------------------
@@ -92,109 +103,154 @@ double CostTableManager::CalculateRCCost() {
     const int Rn = GetRowSize();
     const int Cn = GetColSize();
 
-    // --- R: for each device name, compute the population standard deviation
-    //     of its average distance from the row center line ---
-    unordered_map<string, long long> r_cnt_total;
-    unordered_map<string, double>    r_sum_wdist;
+    // --- R: token-level distance from row center (保持你原本加權/統計) ---
+unordered_map<string, long long> r_cnt_total;
+unordered_map<string, double>    r_sum_wdist;
 
-    for (int r = 0; r < Rn; ++r) {
-        const bool even = (Cn % 2 == 0);
-        const int  k = Cn / 2;
-        const int  m = (Cn - 1) / 2;
+for (int r = 0; r < Rn; ++r) {
+    // 展開到 token 尺度，並保留來源 du 的 (nfin, cnt)
+    std::vector<std::string> rowTokens;
+    std::vector<std::pair<int,int>> token_meta; // {nfin, cnt}
+    rowTokens.reserve(Cn * 4);
+    token_meta.reserve(Cn * 4);
 
-        for (int j = 0; j < Cn; ++j) {
-            DeviceUnit& du = deviceUnitTable[r][j];
-            string name = ExtractName(du);
-            if (name.empty()) continue;
-
-            double dist = even
-                ? std::fabs((static_cast<double>(j) + 0.5) - static_cast<double>(k))
-                : std::fabs(static_cast<double>(j - m));
-
-            int cnt = du.GetDeviceNum();
-            if (cnt <= 0) continue;
-
-            r_sum_wdist[name] += dist * static_cast<double>(cnt);
-            r_cnt_total[name] += static_cast<long long>(cnt);
+    for (int c = 0; c < Cn; ++c) {
+        DeviceUnit& du = deviceUnitTable[r][c];
+        auto v = du.GetDeviceOutputVector();
+        for (const auto& t : v) {
+            rowTokens.push_back(t);
+            token_meta.emplace_back(du.GetNfin(), du.GetDeviceNum());
         }
     }
 
-    vector<double> r_per_name_cost;
-    r_per_name_cost.reserve(r_sum_wdist.size());
-    for (auto& kv : r_sum_wdist) {
-        const string& name = kv.first;
-        long long tot = r_cnt_total[name];
-        if (tot <= 0) continue;
-        r_per_name_cost.push_back(kv.second / static_cast<double>(tot));
+    const int W = static_cast<int>(rowTokens.size());
+    if (W == 0) continue;
+
+    const bool even = (W % 2 == 0);
+    const int  k = W / 2;
+    const int  m = (W - 1) / 2;
+
+    for (int i = 0; i < W; ++i) {
+        const std::string& name = rowTokens[i];
+        if (name.empty() || name == "d") continue;
+
+        double dist = even
+            ? std::fabs((static_cast<double>(i) + 0.5) - static_cast<double>(k))
+            : std::fabs(static_cast<double>(i - m));
+
+        int cnt = token_meta[i].second; // 延用你原本的 deviceNum 加權
+        if (cnt <= 0) continue;
+
+        r_sum_wdist[name] += dist * static_cast<double>(cnt);
+        r_cnt_total[name] += static_cast<long long>(cnt);
     }
+}
 
-    double r = 0.0;
-    if (!r_per_name_cost.empty()) {
-        double s = 0.0, s2 = 0.0;
-        for (double v : r_per_name_cost) { s += v; s2 += v * v; }
-        double n = static_cast<double>(r_per_name_cost.size());
-        double mean = s / n;
-        double var = (s2 / n) - mean * mean;
-        if (var < 0.0) var = 0.0;
-        r = std::sqrt(var);
-    }
+std::vector<double> r_per_name_cost;
+r_per_name_cost.reserve(r_sum_wdist.size());
+for (auto& kv : r_sum_wdist) {
+    const std::string& name = kv.first;
+    long long tot = r_cnt_total[name];
+    if (tot <= 0) continue;
+    r_per_name_cost.push_back(kv.second / static_cast<double>(tot));
+}
 
-    // --- C: from both sides toward center, increase "numerator" by 1
-    //     only when a new letter appears for the first time ---
-    unordered_map<string, double>    c_sum_weight;
-    unordered_map<string, long long> c_cnt_total;
+double r = 0.0;
+if (!r_per_name_cost.empty()) {
+    double s = 0.0, s2 = 0.0;
+    for (double v : r_per_name_cost) { s += v; s2 += v * v; }
+    double n = static_cast<double>(r_per_name_cost.size());
+    double mean = s / n;
+    double var = (s2 / n) - mean * mean;
+    if (var < 0.0) var = 0.0;
+    r = std::sqrt(var);
+}
 
-    auto process_side = [&](int row, int start, int end, int step) {
-        unordered_set<string> seen;
-        string prev;
-        int numerator = 1;
-        for (int j = start; j != end + step; j += step) {
-            DeviceUnit& du = deviceUnitTable[row][j];
-            string name = ExtractName(du);
-            if (name.empty()) continue;
 
-            if (!prev.empty() && name != prev && !seen.count(name)) {
-                numerator += 1;
-            }
-            prev = name;
-            seen.insert(name);
+    // token-level side scan（沿用你的 numerator / seen / nfin-1 權重）
+auto process_side_tokens = [&](const std::vector<std::string>& tok,
+                               const std::vector<std::pair<int,int>>& meta,
+                               int start, int end, int step,
+                               std::unordered_map<std::string, double>&    c_sum_weight,
+                               std::unordered_map<std::string, long long>& c_cnt_total) {
+    std::unordered_set<std::string> seen;
+    std::string prev;
+    int numerator = 1;
+    for (int i = start; i != end + step; i += step) {
+        const std::string& name = tok[i];
+        if (name.empty() || name == "d") continue;
 
-            int nfin = du.GetNfin();
-            if (nfin <= 1) continue;
-            int cnt = du.GetDeviceNum();
-            if (cnt <= 0) continue;
-
-            c_sum_weight[name] += (static_cast<double>(numerator) / static_cast<double>(nfin - 1))
-                * static_cast<double>(cnt);
-            c_cnt_total[name] += static_cast<long long>(cnt);
+        if (!prev.empty() && name != prev && !seen.count(name)) {
+            numerator += 1;
         }
-    };
+        prev = name;
+        seen.insert(name);
 
-    for (int rr = 0; rr < Rn; ++rr) {
-        if (Cn == 0) continue;
-        if (Cn % 2 == 0) {
-            int k = Cn / 2;
-            if (k - 1 >= 0) process_side(rr, 0, k - 1, +1);
-            if (Cn - 1 >= k) process_side(rr, Cn - 1, k, -1);
-        }
-        else {
-            int m = (Cn - 1) / 2;
-            process_side(rr, 0, m, +1);
-            if (Cn - 1 >= m + 1) process_side(rr, Cn - 1, m + 1, -1);
+        int nfin = meta[i].first;
+        if (nfin <= 1) continue;
+        int cnt = meta[i].second;
+        if (cnt <= 0) continue;
+
+        c_sum_weight[name] += (static_cast<double>(numerator) / static_cast<double>(nfin - 1))
+                              * static_cast<double>(cnt);
+        c_cnt_total[name]  += static_cast<long long>(cnt);
+    }
+};
+
+// 逐列展開到 token 後，從左右兩側往中心掃
+std::unordered_map<std::string, double>    c_sum_weight;
+std::unordered_map<std::string, long long> c_cnt_total;
+
+for (int rr = 0; rr < Rn; ++rr) {
+    std::vector<std::string> rowTokens;
+    std::vector<std::pair<int,int>> token_meta; // {nfin, cnt}
+    rowTokens.reserve(Cn * 4);
+    token_meta.reserve(Cn * 4);
+
+    for (int c = 0; c < Cn; ++c) {
+        DeviceUnit& du = deviceUnitTable[rr][c];
+        auto v = du.GetDeviceOutputVector();
+        for (const auto& t : v) {
+            rowTokens.push_back(t);
+            token_meta.emplace_back(du.GetNfin(), du.GetDeviceNum());
         }
     }
 
-    double c_total = 0.0;
-    for (auto& kv : c_sum_weight) {
-        const string& name = kv.first;
-        long long tot = c_cnt_total[name];
-        if (tot <= 0) continue;
-        double c_avg = kv.second / static_cast<double>(tot);
-        c_total += c_avg;
-    }
+    const int W = static_cast<int>(rowTokens.size());
+    if (W == 0) continue;
 
+    if (W % 2 == 0) {
+        int k = W / 2;
+        if (k - 1 >= 0) process_side_tokens(rowTokens, token_meta, 0,     k - 1, +1, c_sum_weight, c_cnt_total);
+        if (W - 1 >= k) process_side_tokens(rowTokens, token_meta, W - 1, k,     -1, c_sum_weight, c_cnt_total);
+    } else {
+        int m = (W - 1) / 2;
+        process_side_tokens(rowTokens, token_meta, 0,     m,     +1, c_sum_weight, c_cnt_total);
+        if (W - 1 >= m + 1)
+            process_side_tokens(rowTokens, token_meta, W - 1, m + 1, -1, c_sum_weight, c_cnt_total);
+    }
+}
+
+double c_total = 0.0;
+for (auto& kv : c_sum_weight) {
+    const std::string& name = kv.first;
+    long long tot = c_cnt_total[name];
+    if (tot <= 0) continue;
+    double c_avg = kv.second / static_cast<double>(tot);
+    c_total += c_avg;
+}
+
+
+    //NEW
+    this->RC_RCost = r;
+    this->RC_CCost = c_total;
+
+    //Reserved
     return r + c_total;
 }
+
+
+
 
 // -----------------------------------------------------------------------------
 // 3. Separation Cost
