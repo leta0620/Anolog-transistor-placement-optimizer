@@ -52,7 +52,7 @@ void SAManager::SAProcess()
 		}
 
 		// select new usage table
-		this->SeleteNewUseTable();
+		this->SeleteNewUseTable(gen);
 
 		// update nondominated solution
 		this->UpdateNondominatedSolution();
@@ -90,15 +90,97 @@ void SAManager::Perturbation(std::mt19937& gen)
 	this->newTableList.push_back(newTable);
 }
 
-
-
-void SAManager::SeleteNewUseTable()
+bool doesADominateB(const vector<double>& aCost, const vector<double>& bCost)
 {
-	
+	bool aBetterInAtLeastOne = false;
+	for (size_t i = 0; i < aCost.size(); ++i)
+	{
+		if (aCost[i] > bCost[i])
+		{
+			return false; // a is worse in this objective
+		}
+		else if (aCost[i] < bCost[i])
+		{
+			aBetterInAtLeastOne = true; // a is better in this objective
+		}
+	}
+	return aBetterInAtLeastOne;
+}
+
+void SAManager::SeleteNewUseTable(std::mt19937& gen)
+{
+	// test how many new solution can dominate NondominatedSolution Set
+	double deltaBeDom = 0.0;	// the new solution is dominated by how many solutions in NondominatedSolution Set / total solutions in NondominatedSolution Set
+	int dominateCount = 0;
+	vector<int> oldDominateNewIndex;	// index of solutions in NondominatedSolution Set which are dominated by new solution
+
+	// if NondominatedSolution Set is empty, set deltaBeDom to 0
+	if (this->nondominatedSolution.size() == 0)
+	{
+		deltaBeDom = 0.0;
+	}
+	else {
+		// compare each new solution with NondominatedSolution Set
+		for (auto& nSet : this->nondominatedSolution)
+		{
+			for (auto& newTable : this->newTableList)
+			{
+				if (doesADominateB(nSet.GetCostVector(), newTable.GetCostVector()))
+				{
+					// new solution is dominated by nSet
+					dominateCount++;
+					oldDominateNewIndex.push_back(&nSet - &this->nondominatedSolution[0]);
+				}
+			}
+		}
+
+		deltaBeDom = dominateCount / (this->nondominatedSolution.size() * this->newTableList.size());
+	}
+
+	// check how many solution dominate nowUseTable
+	int newDominateNowUseCount = 0;
+	vector<int> newDominateNowUseIndex;
+	for (auto& newTable : this->newTableList)
+	{
+		if (doesADominateB(newTable.GetCostVector(), this->nowUseTable.GetCostVector()))
+		{
+			newDominateNowUseCount++;
+			newDominateNowUseIndex.push_back(&newTable - &this->newTableList[0]);
+		}
+	}
+
+	// decide to accept new solution or not
+	if (newDominateNowUseCount > 0)
+	{
+		cout << "Accept new solution which dominate nowUseTable." << endl;
+		// random select one solution taht in newDominateNowUseIndex
+		uniform_int_distribution<> dis(0, this->newTableList.size() - 1);
+		int selectIndex = dis(gen);
+		this->nowUseTable = this->newTableList[selectIndex];
+	}
+	else
+	{
+		// accept with probability
+		double acceptProb = 1 / 1 + exp((deltaBeDom) / this->currentTemp);
+		uniform_real_distribution<> dis(0.0, 1.0);
+		double randVal = dis(gen);
+		if (randVal < acceptProb)
+		{
+			cout << "Accept new solution with probability." << endl;
+			// random select one solution from newTableList of oldDominateNewIndex
+			uniform_int_distribution<> dis(0, oldDominateNewIndex.size() - 1);
+			int selectIndex = dis(gen);
+			this->nowUseTable = this->newTableList[oldDominateNewIndex[selectIndex]];
+		}
+		else
+		{
+			cout << "Reject new solution." << endl;
+		}
+	}
 }
 
 void SAManager::UpdateNondominatedSolution()
 {
-	// To Do: implement update of nondominated solution
+	
 }
 

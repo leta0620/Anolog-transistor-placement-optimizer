@@ -26,7 +26,7 @@ private:
 	void Perturbation(std::mt19937& gen);
 
 	// select new usage table from current result(compare cost with mowUseTable and decide to accept or not)
-	void SeleteNewUseTable();
+	void SeleteNewUseTable(std::mt19937& gen);
 
 	// compare newTableList with nondominatedSolution and update nondominatedSolution
 	void UpdateNondominatedSolution();
