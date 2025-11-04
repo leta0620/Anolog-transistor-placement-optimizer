@@ -1,7 +1,18 @@
 #include "output.h"
 #include <vector>
 #include <map>
+#include <string>
+#include <fstream>
 using namespace std;
+
+Output::Output(std::string circuitType, int group, int nfin, double aspect, std::vector<int> deviceNumList)
+{
+	this->circuitType = circuitType;
+	this->group = group;
+	this->nfin = nfin;
+	this->aspect = aspect;
+	this->deviceNumList = deviceNumList;
+}
 
 void Output::AddResultSingle(int round, CostTableManager& cTable)
 {
@@ -43,4 +54,55 @@ void Output::PrintAllResult()
 		}
 		cout << "\n";
 	}
+}
+
+void Output::WriteAllResultToFile(string fileName)
+{
+	ofstream f;
+	f.open(fileName);
+
+	// initial parm
+	f << "initial parameter:\n";
+	f << "circuit type: ";
+	if (this->circuitType == "C") f << "Current mirrow, ";
+	else if (this->circuitType == "D") f << "Differential pair, ";
+	else f << "**circuit type error, ";
+
+	f << "group(finger): " << this->group << ", ";
+	f << "finfet nfin: " << this->nfin << ", ";
+	f << "aspect ratio: " << this->aspect << ", ";
+	f << "device and device Number: ";
+	for (int i = 0; i < this->deviceNumList.size(); i++)
+	{
+		f << char('A' + i) << "->" << this->deviceNumList[i];
+		if (i < this->deviceNumList.size() - 1) f << ", ";
+	}
+	f << "\n\n";
+
+	for (size_t i = 0; i < allNondominatedSolutions.size(); i++)
+	{
+		const auto& solutions = allNondominatedSolutions[i];
+		for (size_t j = 0; j < solutions.size(); j++)
+		{
+			f << " Solution " << j + 1 << ":\n";
+			auto table = solutions[j];
+			auto cost = table.CalculateCost();
+			f << "  Costs - CC: " << cost[0] << ", RC: " << cost[1] << ", Separation: " << cost[2] << "\n";
+			f << "  Table Layout:\n";
+			auto deviceTable = table.GetTable();
+			for (const auto& row : deviceTable)
+			{
+				for (auto device : row)
+				{
+					f << device.GetDeviceOutput();
+				}
+				f << "\n";
+			}
+			f << "\n";
+		}
+		f << "\n";
+	}
+
+	f.close();
+	cout << "The output file has complete." << endl;
 }
