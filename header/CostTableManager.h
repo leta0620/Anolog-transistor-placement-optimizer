@@ -14,8 +14,9 @@ public:
 	// calculate cost: CC, RC, seperation
 	std::vector<double> CalculateCost();
 
-	// get cost vector: {CCCost, RCCost, SeperationCost}
-	vector<double> GetCostVector() {
+	// get cost vector
+	std::vector<double> GetCostVector()
+	{
 		return { CCCost, RCCost, SeperationCost };
 	}
 
