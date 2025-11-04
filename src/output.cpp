@@ -40,7 +40,7 @@ void Output::PrintAllResult()
 			cout << " Solution " << j + 1 << ":\n";
 			auto table = solutions[j];
 			auto cost = table.CalculateCost();
-			cout << "  Costs - CC: " << cost[0] << ", R: " << cost[1] << "C: " << cost[2] << ", Separation: " << cost[3] << "\n";
+			cout << "  Costs - CC: " << cost[0] << ", R: " << cost[1] << ", C: " << cost[2] << ", Separation: " << cost[3] << "\n";
 			cout << "  Table Layout:\n";
 			auto deviceTable = table.GetTable();
 			for (const auto& row : deviceTable)
