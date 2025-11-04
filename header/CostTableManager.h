@@ -14,6 +14,14 @@ public:
 	// calculate cost: CC, RC, seperation
 	std::vector<double> CalculateCost();
 
+	// get cost vector
+	std::vector<double> GetCostVector()
+	{
+		return { CCCost, RCCost, SeperationCost };
+	}
+
+	bool EqualTableToSelf(CostTableManager& otherTable);
+
 private:
 	double CCCost = 0.0;
 	double RCCost = 0.0;
