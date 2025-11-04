@@ -13,6 +13,7 @@ private:
 	double finalTemp;
 	double currentTemp;
 	int iterationPerTemp;
+	bool openCommandLineOutput = false;
 
 	std::vector<CostTableManager> nondominatedSolution;
 	CostTableManager initialTable;
@@ -33,8 +34,8 @@ private:
 
 public:
 	// constructor, initialize SA parameters, and start SA process
-	SAManager(const CostTableManager& initialTable, double coolRate = 0.95, double initialTemp = 1000.0, double finalTemp = 1.0, int iterationPerTemp = 100);
-	SAManager(TableManager& initialTable, double coolRate = 0.95, double initialTemp = 1000.0, double finalTemp = 1.0, int iterationPerTemp = 100);
+	SAManager(const CostTableManager& initialTable, double coolRate = 0.95, double initialTemp = 1000.0, double finalTemp = 1.0, int iterationPerTemp = 100, bool openCommandLineOutput = false);
+	SAManager(TableManager& initialTable, double coolRate = 0.95, double initialTemp = 1000.0, double finalTemp = 1.0, int iterationPerTemp = 100, bool openCommandLineOutput = false);
 
 	std::vector<CostTableManager> GetNondominatedSolution() { return nondominatedSolution; }
 };

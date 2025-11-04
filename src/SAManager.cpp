@@ -7,29 +7,39 @@
 
 using namespace std;
 
-SAManager::SAManager(const CostTableManager& initialTable, double coolRate, double initialTemp, double finalTemp, int iterationPerTemp)
+SAManager::SAManager(const CostTableManager& initialTable, double coolRate, double initialTemp, double finalTemp, int iterationPerTemp, bool openCommandLineOutput)
 {
 	this->initialTable = initialTable;
-	this->nowUseTable = initialTable;
+	this->initialTable.CalculateCost();
+
+	this->nowUseTable = this->initialTable;
+	this->nondominatedSolution.push_back(this->initialTable);
+
 	this->coolRate = coolRate;
 	this->initialTemp = initialTemp;
 	this->finalTemp = finalTemp;
 	this->iterationPerTemp = iterationPerTemp;
 	this->currentTemp = initialTemp;
+	this->openCommandLineOutput = openCommandLineOutput;
 	// start SA process
 	this->SAProcess();
 }
 
-SAManager::SAManager(TableManager& initialTable, double coolRate, double initialTemp, double finalTemp, int iterationPerTemp)
+SAManager::SAManager(TableManager& initialTable, double coolRate, double initialTemp, double finalTemp, int iterationPerTemp, bool openCommandLineOutput)
 {
 	this->initialTable.ResizeTable(initialTable.GetRowSize(), initialTable.GetColSize());
 	this->initialTable.SetTable(initialTable.GetTable());
+	this->initialTable.CalculateCost();
+
+	this->nowUseTable = this->initialTable;
+	this->nondominatedSolution.push_back(this->initialTable);
 
 	this->coolRate = coolRate;
 	this->initialTemp = initialTemp;
 	this->finalTemp = finalTemp;
 	this->iterationPerTemp = iterationPerTemp;
 	this->currentTemp = initialTemp;
+	this->openCommandLineOutput = openCommandLineOutput;
 	// start SA process
 	this->SAProcess();
 }
@@ -64,10 +74,12 @@ void SAManager::SAProcess()
 		{
 			this->currentTemp *= this->coolRate;
 			nowIteration = 0;
+			if (this->openCommandLineOutput)	cout << "Current Temperature: " << this->currentTemp << endl;
 		}
 		else
 		{
 			nowIteration++;
+			//cout << "Current Iteration at this Temperature: " << nowIteration << endl;
 		}
 	}
 }
@@ -81,8 +93,14 @@ void SAManager::Perturbation(std::mt19937& gen)
 		uniform_int_distribution<> disCol(0, colSize - 1);
 		int row1 = disRow(gen);
 		int col1 = disCol(gen);
-		int row2 = disRow(gen);
-		int col2 = disCol(gen);
+		int row2 = 0;
+		int col2 = 0;
+		do
+		{
+			row2 = disRow(gen);
+			col2 = disCol(gen);
+		} while (table.GetDeviceUnit(row1, col1).GetDeviceName() == table.GetDeviceUnit(row2, col2).GetDeviceName());
+		
 		table.SwapDeviceUnit(row1, col1, row2, col2);
 		};
 
@@ -114,24 +132,25 @@ void SAManager::SeleteNewUseTable(std::mt19937& gen)
 	// test how many new solution can dominate NondominatedSolution Set
 	double deltaBeDom = 0.0;	// the new solution is dominated by how many solutions in NondominatedSolution Set / total solutions in NondominatedSolution Set
 	int dominateCount = 0;
-	vector<int> oldDominateNewIndex;	// index of solutions in NondominatedSolution Set which are dominated by new solution
+	set<int> newBeOldDominatedIndex;	// index of solutions in NondominatedSolution Set which are dominated by new solution
 
 	// if NondominatedSolution Set is empty, set deltaBeDom to 0
 	if (this->nondominatedSolution.size() == 0)
 	{
 		deltaBeDom = 0.0;
+		//cout << "NondominatedSolution Set is empty." << endl;
 	}
 	else {
 		// compare each new solution with NondominatedSolution Set
-		for (auto& nSet : this->nondominatedSolution)
+		for (auto& nSol : this->nondominatedSolution)
 		{
-			for (auto& newTable : this->newTableList)
+			for (int i = 0; i < this->newTableList.size(); i++)
 			{
-				if (doesADominateB(nSet.GetCostVector(), newTable.GetCostVector()))
+				if (doesADominateB(nSol.GetCostVector(), this->newTableList[i].GetCostVector()))
 				{
 					// new solution is dominated by nSet
 					dominateCount++;
-					oldDominateNewIndex.push_back(&nSet - &this->nondominatedSolution[0]);
+					newBeOldDominatedIndex.insert(i);
 				}
 			}
 		}
@@ -139,7 +158,23 @@ void SAManager::SeleteNewUseTable(std::mt19937& gen)
 		deltaBeDom = dominateCount / (this->nondominatedSolution.size() * this->newTableList.size());
 	}
 
-	// check how many solution dominate nowUseTable
+	// delete dominated solutions from newTableList
+	vector<CostTableManager> updatedNewTableList;
+	for (int i = 0; i < this->newTableList.size(); i++)
+	{
+		if (newBeOldDominatedIndex.find(i) == newBeOldDominatedIndex.end())
+		{
+			updatedNewTableList.push_back(this->newTableList[i]);
+		}
+	}
+	this->newTableList = updatedNewTableList;
+	if (newTableList.size() == 0)
+	{
+		//cout << "\t" << "no solution is better." << endl;
+		return;
+	}
+
+	// check how many new solution dominate nowUseTable
 	int newDominateNowUseCount = 0;
 	vector<int> newDominateNowUseIndex;
 	for (auto& newTable : this->newTableList)
@@ -151,33 +186,44 @@ void SAManager::SeleteNewUseTable(std::mt19937& gen)
 		}
 	}
 
+	//cout << "\t" << newDominateNowUseCount << " new solutions dominate nowUseTable." << endl;
+
+
+
+
+
 	// decide to accept new solution or not
 	if (newDominateNowUseCount > 0)
 	{
-		cout << "Accept new solution which dominate nowUseTable." << endl;
+		//cout << "\t" << "Accept new solution which dominate nowUseTable." << endl;
 		// random select one solution taht in newDominateNowUseIndex
 		uniform_int_distribution<> dis(0, this->newTableList.size() - 1);
 		int selectIndex = dis(gen);
 		this->nowUseTable = this->newTableList[selectIndex];
 	}
-	else
+	else if (newDominateNowUseCount == 0 && newBeOldDominatedIndex.size() != this->newTableList.size())
 	{
+		// **no new solution dominate now solution**
 		// accept with probability
-		double acceptProb = 1 / 1 + exp((deltaBeDom) / this->currentTemp);
+		double acceptProb = 1 / (1 + exp((deltaBeDom) / this->currentTemp));
 		uniform_real_distribution<> dis(0.0, 1.0);
 		double randVal = dis(gen);
 		if (randVal < acceptProb)
 		{
-			cout << "Accept new solution with probability." << endl;
-			// random select one solution from newTableList of oldDominateNewIndex
-			uniform_int_distribution<> dis(0, oldDominateNewIndex.size() - 1);
-			int selectIndex = dis(gen);
-			this->nowUseTable = this->newTableList[oldDominateNewIndex[selectIndex]];
+			//cout << "\t" << "Accept new solution with probability." << endl;
+			// find a new solution that not in oldDominateNewIndex
+			uniform_int_distribution<> disNew(0, this->newTableList.size() - 1);
+			int selectIndex = 0;
+			this->nowUseTable = this->newTableList[selectIndex];
 		}
 		else
 		{
-			cout << "Reject new solution." << endl;
+			//cout << "\t" << "Reject new solution. probability." << endl;
 		}
+	}
+	else
+	{
+		//cout << "\t" << "Reject new solution. No new solution better than now Solution." << endl;
 	}
 }
 
@@ -202,7 +248,18 @@ void SAManager::UpdateNondominatedSolution()
 			}
 		}
 
-		if (!newIsDominated)
+		// if new solution is not dominated by any solution in nondominatedSolution, add it
+		auto CheckNewTableExists = [&](CostTableManager& table) -> bool {
+			for (const auto& existingTable : this->nondominatedSolution) {
+				if (table.EqualTableToSelf(const_cast<CostTableManager&>(existingTable))) {
+					return true; // Table already exists
+				}
+			}
+			return false; // Table does not exist
+			};
+
+		// add new solution, only when it is not dominated and not already exists
+		if (!newIsDominated && !CheckNewTableExists(newTable))
 		{
 			newToBeAddIndex.push_back(&newTable - &this->newTableList[0]);
 		}

@@ -1,0 +1,14 @@
+參數：circuit type, group , nfin, aspect, deviceNumList
+
+1.circuit type：
+	電流鏡: C
+	差動對: D
+2.group：egual to finger, integer number 
+3.nfin：affect finfet height, integer number
+4.aspect：the whole placement aspect ratio, double number
+5.deviceNumList：
+	if we have A, B, C and they have 16, 32, 32 devices.
+	input -> 16, 32, 32
+	
+e.g.
+C 4 4 1 16 32 32 (Current mirrow, each group have 4 devices, nfin = 4, aspect ratio = 1, 3 different device(A:16, B:32, C:32))
