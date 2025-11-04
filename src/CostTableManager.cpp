@@ -17,13 +17,19 @@ namespace {
     }
 } // namespace
 
-// Calculate all three cost terms: CC, RC, and Separation
+// Calculate all four cost terms now: CC, R, C, and Separation
 std::vector<double> CostTableManager::CalculateCost()
 {
     this->CCCost = this->CalculateCCCost();
-    this->RCCost = this->CalculateRCCost();
+
+    //NEW
+    //why add void? because this is to avoid the compiler giving a waring of this function
+    (void)this->CalculateRCCost();
+
     this->SeperationCost = this->CalculateSeperationCost();
-    return { this->CCCost, this->RCCost, this->SeperationCost };
+
+    //only return R & C
+    return { this->CCCost, this->RC_RCost, this->RC_CCost, this->SeperationCost };
 }
 
 // -----------------------------------------------------------------------------
@@ -80,6 +86,8 @@ double CostTableManager::CalculateCCCost() {
     return sum / static_cast<double>(n);
 }
 
+
+
 // -----------------------------------------------------------------------------
 // 2. RC Cost
 // -----------------------------------------------------------------------------
@@ -92,8 +100,8 @@ double CostTableManager::CalculateRCCost() {
     const int Rn = GetRowSize();
     const int Cn = GetColSize();
 
-    // --- R: for each device name, compute the population standard deviation
-    //     of its average distance from the row center line ---
+    // --- R: for each device name, compute the population standard deviation 
+    // of its average distance from the row center line ---
     unordered_map<string, long long> r_cnt_total;
     unordered_map<string, double>    r_sum_wdist;
 
@@ -139,8 +147,8 @@ double CostTableManager::CalculateRCCost() {
         r = std::sqrt(var);
     }
 
-    // --- C: from both sides toward center, increase "numerator" by 1
-    //     only when a new letter appears for the first time ---
+    // --- C: from both sides toward center, increase "numerator" by 1 
+    // only when a new letter appears for the first time ---
     unordered_map<string, double>    c_sum_weight;
     unordered_map<string, long long> c_cnt_total;
 
@@ -165,8 +173,8 @@ double CostTableManager::CalculateRCCost() {
             if (cnt <= 0) continue;
 
             c_sum_weight[name] += (static_cast<double>(numerator) / static_cast<double>(nfin - 1))
-                * static_cast<double>(cnt);
-            c_cnt_total[name] += static_cast<long long>(cnt);
+                                  * static_cast<double>(cnt);
+            c_cnt_total[name]  += static_cast<long long>(cnt);
         }
     };
 
@@ -176,8 +184,7 @@ double CostTableManager::CalculateRCCost() {
             int k = Cn / 2;
             if (k - 1 >= 0) process_side(rr, 0, k - 1, +1);
             if (Cn - 1 >= k) process_side(rr, Cn - 1, k, -1);
-        }
-        else {
+        } else {
             int m = (Cn - 1) / 2;
             process_side(rr, 0, m, +1);
             if (Cn - 1 >= m + 1) process_side(rr, Cn - 1, m + 1, -1);
@@ -193,8 +200,16 @@ double CostTableManager::CalculateRCCost() {
         c_total += c_avg;
     }
 
+    //NEW
+    this->RC_RCost = r;
+    this->RC_CCost = c_total;
+
+    //Reserved
     return r + c_total;
 }
+
+
+
 
 // -----------------------------------------------------------------------------
 // 3. Separation Cost
