@@ -9,7 +9,11 @@ Test::Test()
 	cout << "Start test." << endl;
 
 	//this->TestDeviceUnit("A", 4, 6, 16);
-	this->TestTableManager(4, 5);
+	//this->TestTableManager(4, 5);
+
+	//void TestInitialPlacement(std::string circuitType, int group, int nfin, int aspect, std::vector<int>& deviceNumList);
+	std::vector<int> deviceNums = { 9, 18, 34, 56 };
+	this->TestInitialPlacement("DP", 8, 4, 0.12, deviceNums);
 }
 
 void Test::TestDeviceUnit(string deviceName, int deviceNum, int nfin, int group)
@@ -58,4 +62,28 @@ void Test::TestTableManager(int rowSize, int colSize)
 	cout << "Testing TableManager with size: " << rowSize << " x " << colSize << endl;
 	TableManager tm(rowSize, colSize);
 	// Further tests can be added here for TableManager functionalities
+}
+
+void Test::TestInitialPlacement(std::string circuitType, int group, int nfin, double aspect, std::vector<int>& deviceNumList)
+{
+	cout << "Testing InitialPlacement with parameters: " << circuitType << ", " << group << ", " << nfin << ", " << aspect << endl;
+	cout << "Device Num List: ";
+	for (const auto& num : deviceNumList)
+	{
+		cout << num << " ";
+	}
+	cout << endl;
+	InItialPlacenent ip(circuitType, group, nfin, aspect, deviceNumList);
+	// Further tests can be added here for InitialPlacement functionalities
+	vector<TableManager> resultTables = ip.GetResultTable();
+
+	for (auto& table : resultTables)
+	{
+		cout << "Table Output: " << endl;
+		vector<string> tableOutput = table.GetTableOutput();
+		for (const auto& line : tableOutput)
+		{
+			cout << line << endl;
+		}
+	}
 }
