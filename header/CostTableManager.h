@@ -17,18 +17,21 @@ public:
 	// get cost vector
 	std::vector<double> GetCostVector()
 	{
-		return { CCCost, RCCost, SeperationCost };
+		return { this->CCCost, this->RC_RCost, this->RC_CCost, this->SeperationCost };
 	}
 
 	bool EqualTableToSelf(CostTableManager& otherTable);
 
 private:
-	double CCCost = 0.0;
-	double RCCost = 0.0;
-	double SeperationCost = 0.0;
-	std::string circuitType;
+    double CCCost = 0.0;
+    double RCCost = 0.0;          //reserved
+    double RC_RCost = 0.0;        //R
+    double RC_CCost = 0.0;        //C
+    double SeperationCost = 0.0;
 
-	double CalculateCCCost();
-	double CalculateRCCost();
-	double CalculateSeperationCost();
+    std::string circuitType;
+
+    double CalculateCCCost();
+    double CalculateRCCost();
+    double CalculateSeperationCost();
 };

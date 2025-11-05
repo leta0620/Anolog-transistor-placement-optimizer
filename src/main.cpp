@@ -8,6 +8,7 @@
 #include "InitialPlacement.h"
 #include "SAManager.h"
 #include "test.h"
+#include "output.h"
 
 
 using namespace std;
@@ -40,40 +41,19 @@ int main(int argc, char* argv[]) {
 		InItialPlacenent initialPlacement(circuitType, group, nfin, aspect, deviceNumList);
 		vector<TableManager> resultTables = initialPlacement.GetResultTable();
 
-		vector<vector<CostTableManager>> allNondominatedSolutions;
+		Output result(circuitType, group, nfin, aspect, deviceNumList);
 		for (TableManager& r : resultTables)
 		{
 			// SA
 			cout << "Now Table Num: " << &r - &resultTables[0] + 1 << "/" << resultTables.size() << endl;
 			SAManager sa(r, 0.95, 100, 1, 100, true);
-			allNondominatedSolutions.push_back(sa.GetNondominatedSolution());
-			cout << "Get " << sa.GetNondominatedSolution().size() << " Nondominated Solutions.\n\n";
+			result.AddResultList(&r - &resultTables[0] + 1, sa.GetNondominatedSolution());
+			cout << "\n\tGet " << sa.GetNondominatedSolution().size() << " Nondominated Solutions.\n\n";
 		}
 
-		// Output all nondominated solutions
-		for (size_t i = 0; i < allNondominatedSolutions.size(); i++)
-		{
-			cout << "Nondominated Solutions for Initial Table " << i + 1 << ":\n";
-			const auto& solutions = allNondominatedSolutions[i];
-			for (size_t j = 0; j < solutions.size(); j++)
-			{
-				cout << " Solution " << j + 1 << ":\n";
-				auto table = solutions[j];
-				auto cost = table.CalculateCost();
-				cout << "  Costs - CC: " << cost[0] << ", RC: " << cost[1] << ", Separation: " << cost[2] << "\n";
-				cout << "  Table Layout:\n";
-				auto deviceTable = table.GetTable();
-				for (const auto& row : deviceTable)
-				{
-					for (auto device : row)
-					{
-						cout << device.GetDeviceOutput() << " ";
-					}
-					cout << "\n";
-				}
-			}
-			cout << "\n";
-		}
+		// output
+		result.PrintAllResult();
+		result.WriteAllResultToFile("output_file.txt");
 	}
 
 	return 0;
