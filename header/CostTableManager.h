@@ -22,6 +22,12 @@ public:
 
 	bool EqualTableToSelf(CostTableManager& otherTable);
 
+	// get real table
+	std::vector<std::string> GetRealTable()
+	{
+		return realTable;
+	}
+
 private:
     double CCCost = 0.0;
     double RCCost = 0.0;          //reserved
@@ -29,7 +35,11 @@ private:
     double RC_CCost = 0.0;        //C
     double SeperationCost = 0.0;
 
+	std::vector<std::string> realTable;
+
     std::string circuitType;
+
+	bool SetRealTable();
 
     double CalculateCCCost();
     double CalculateRCCost();

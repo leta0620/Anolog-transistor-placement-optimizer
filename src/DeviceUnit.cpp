@@ -37,6 +37,18 @@ string DeviceUnit::GetDeviceOutput()
 	return ret;
 }
 
+// get device output string with only device names
+string DeviceUnit::GetDeviceOutputWithoutDummy()
+{
+	string ret;
+	for (int i = 0; i < this->deviceNum; i++)
+	{
+		ret += this->deviceName;
+	}
+
+	return ret;
+}
+
 // get device output vector<string>
 vector<string> DeviceUnit::GetDeviceOutputVector()
 {

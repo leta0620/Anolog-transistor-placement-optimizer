@@ -12,6 +12,8 @@ public:
 	// get device output string, e.g. ddAAAAdd
 	std::string GetDeviceOutput();
 
+	std::string GetDeviceOutputWithoutDummy();
+
 	// get device output vector<string>
 	std::vector<std::string> GetDeviceOutputVector();
 

@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <cmath>
 
+using namespace std;
+
 namespace {
     // Extract device name from one DeviceUnit: pick the first token not equal to "d"
     static std::string ExtractName(DeviceUnit& du) {
@@ -20,6 +22,17 @@ namespace {
 // Calculate all four cost terms now: CC, R, C, and Separation
 std::vector<double> CostTableManager::CalculateCost()
 {
+	bool legalTable = this->SetRealTable();
+    if (!legalTable)
+    {
+        //illegal table, return max cost
+        this->CCCost = 1e9;
+        this->RC_RCost = 1e9;
+        this->RC_CCost = 1e9;
+        this->SeperationCost = 1e9;
+        return { this->CCCost, this->RC_RCost, this->RC_CCost, this->SeperationCost };
+	}
+
     this->CCCost = this->CalculateCCCost();
 
     //NEW
@@ -30,6 +43,50 @@ std::vector<double> CostTableManager::CalculateCost()
 
     //only return R & C
     return { this->CCCost, this->RC_RCost, this->RC_CCost, this->SeperationCost };
+}
+
+bool CostTableManager::SetRealTable()
+{
+    this->realTable.clear();
+    this->realTable.reserve(this->deviceUnitTable.size());
+    for (auto& row : this->deviceUnitTable)
+    {
+        std::string rowStr;
+		int oddCount = 0;
+        std::vector<std::string> oddStrsVec;
+        for (auto& du : row)
+        {
+            
+
+            string deviceO = du.GetDeviceOutputWithoutDummy();
+            if (du.GetDeviceNum() % 2 == 1)
+            {
+                oddCount++;
+				oddStrsVec.push_back(du.GetDeviceOutputWithoutDummy());
+            }
+            else
+            {
+				rowStr += deviceO;
+            }
+        }
+
+        if (oddCount > 2)
+        {
+            return false;
+		}
+
+        if (oddCount == 2)
+		{
+			rowStr = oddStrsVec[0] + rowStr + oddStrsVec[1];
+        }
+        else if (oddCount == 1)
+        {
+			rowStr = oddStrsVec[0] + rowStr;
+        }
+
+        this->realTable.push_back(rowStr);
+	}
+	return true;
 }
 
 // -----------------------------------------------------------------------------
